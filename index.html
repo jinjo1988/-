@@ -6,7 +6,11 @@
 <meta name="theme-color" content="#EDF0F3"><!--shell-->
 <link rel="manifest" href="manifest.webmanifest"><!--shell-->
 <link rel="icon" href="icon.svg" type="image/svg+xml"><!--shell-->
-<link rel="apple-touch-icon" href="icon.svg"><!--shell-->
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><!--shell-->
+<meta name="mobile-web-app-capable" content="yes"><!--shell-->
+<meta name="apple-mobile-web-app-capable" content="yes"><!--shell-->
+<meta name="apple-mobile-web-app-title" content="인터벌"><!--shell-->
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><!--shell-->
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style><!--shell-->
 <title>인터벌 운동 타이머</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -167,6 +171,9 @@ body:not([data-status="idle"]) .dial { --dial: min(86vw, 52vh, 420px); }
   font-size: calc(var(--dial) * .085);
   letter-spacing: .04em;
   line-height: 1.2;
+  max-width: 78%;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 .digits {
   font-family: var(--font-num);
@@ -332,6 +339,160 @@ button:focus-visible, .chip:focus-visible {
   outline-offset: 2px;
 }
 
+/* mode tabs */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--line);
+  border-radius: 12px;
+}
+.tab {
+  font: 600 15px/1 var(--font-ui);
+  padding: 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); }
+
+/* routine list */
+.routine { display: grid; gap: 8px; }
+.routine-head, .item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 58px 58px 32px;
+  gap: 6px;
+  align-items: center;
+}
+.routine-head {
+  font-size: 12px;
+  color: var(--muted);
+  padding-inline: 8px 6px;
+  text-align: center;
+}
+.routine-head span:nth-child(2) { text-align: left; }
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.item {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 6px 6px 6px 8px;
+}
+.item .num {
+  font: 600 16px/1 var(--font-num);
+  color: var(--muted);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.item input {
+  width: 100%;
+  min-width: 0;
+  font: 500 15px/1.2 var(--font-ui);
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 8px;
+}
+.item input[type="number"] {
+  font: 600 20px/1 var(--font-num);
+  text-align: center;
+  padding: 7px 2px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.item input::-webkit-outer-spin-button,
+.item input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.item input:focus { outline: 2px solid var(--work); outline-offset: -1px; }
+.item .del {
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+.item .del:disabled { opacity: .3; cursor: default; }
+.add {
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px;
+  font: 600 14px/1 var(--font-ui);
+  cursor: pointer;
+}
+
+/* saved settings */
+.mine { display: grid; gap: 10px; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.link-btn {
+  font: 600 13px/1 var(--font-ui);
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.save-form { display: flex; gap: 6px; }
+.save-form input {
+  flex: 1;
+  min-width: 0;
+  font: 500 15px/1.2 var(--font-ui);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+.save-form input:focus { outline: 2px solid var(--work); outline-offset: -1px; }
+.mini {
+  font: 600 14px/1 var(--font-ui);
+  border-radius: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.mini.primary { background: var(--work); border-color: var(--work); color: var(--on-flood); }
+.mine-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.saved {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.saved .chip { border: 0; border-radius: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved .x {
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 0 12px;
+  font: 500 13px/1 var(--font-ui);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.saved .x.armed { background: var(--work); color: var(--on-flood); }
+.empty { margin: 0; font-size: 13px; color: var(--muted); }
+
 @media (max-height: 640px) {
   .dial { --dial: min(50vw, 30vh, 200px); }
   .stage { gap: 12px; }
@@ -370,9 +531,24 @@ button:focus-visible, .chip:focus-visible {
     <div class="meta" id="meta"></div>
 
     <section class="settings" id="settings" aria-label="타이머 설정">
-      <div class="presets" id="presets"></div>
+      <div class="tabs" role="tablist" aria-label="타이머 방식">
+        <button class="tab" type="button" role="tab" id="tab-simple" data-mode="simple" aria-selected="true">간단</button>
+        <button class="tab" type="button" role="tab" id="tab-routine" data-mode="routine" aria-selected="false">루틴</button>
+      </div>
+
+      <div class="presets" id="presets" data-only="simple"></div>
+
+      <div class="routine" id="routine" data-only="routine">
+        <div class="presets" id="rpresets"></div>
+        <div class="routine-head" aria-hidden="true">
+          <span></span><span>운동 이름</span><span>운동(초)</span><span>휴식(초)</span><span></span>
+        </div>
+        <ol class="items" id="items"></ol>
+        <button class="add" id="addItem" type="button">+ 운동 추가</button>
+      </div>
+
       <div class="fields">
-        <div class="field work">
+        <div class="field work" data-only="simple">
           <label for="f-work">운동 <span id="h-work">초</span></label>
           <div class="stepper" data-field="work">
             <button type="button" data-dir="-1" aria-label="운동 시간 줄이기">−</button>
@@ -380,7 +556,7 @@ button:focus-visible, .chip:focus-visible {
             <button type="button" data-dir="1" aria-label="운동 시간 늘리기">+</button>
           </div>
         </div>
-        <div class="field rest">
+        <div class="field rest" data-only="simple">
           <label for="f-rest">휴식 <span id="h-rest">초</span></label>
           <div class="stepper" data-field="rest">
             <button type="button" data-dir="-1" aria-label="휴식 시간 줄이기">−</button>
@@ -388,12 +564,20 @@ button:focus-visible, .chip:focus-visible {
             <button type="button" data-dir="1" aria-label="휴식 시간 늘리기">+</button>
           </div>
         </div>
-        <div class="field sets">
+        <div class="field sets" data-only="simple">
           <label for="f-sets">세트 <span id="h-sets">회</span></label>
           <div class="stepper" data-field="sets">
             <button type="button" data-dir="-1" aria-label="세트 수 줄이기">−</button>
             <input id="f-sets" type="number" inputmode="numeric" min="1" max="99">
             <button type="button" data-dir="1" aria-label="세트 수 늘리기">+</button>
+          </div>
+        </div>
+        <div class="field sets" data-only="routine">
+          <label for="f-rounds">반복 <span id="h-rounds">라운드</span></label>
+          <div class="stepper" data-field="rounds">
+            <button type="button" data-dir="-1" aria-label="라운드 수 줄이기">−</button>
+            <input id="f-rounds" type="number" inputmode="numeric" min="1" max="20">
+            <button type="button" data-dir="1" aria-label="라운드 수 늘리기">+</button>
           </div>
         </div>
         <div class="field prep">
@@ -404,6 +588,20 @@ button:focus-visible, .chip:focus-visible {
             <button type="button" data-dir="1" aria-label="준비 시간 늘리기">+</button>
           </div>
         </div>
+      </div>
+
+      <div class="mine">
+        <div class="section-head">
+          <span>내 설정</span>
+          <button class="link-btn" id="saveOpen" type="button">+ 지금 설정 저장</button>
+        </div>
+        <form class="save-form" id="saveForm" hidden>
+          <input id="saveName" type="text" maxlength="16" placeholder="이름 (예: 하체 루틴)" aria-label="저장할 이름">
+          <button class="mini primary" type="submit">저장</button>
+          <button class="mini" id="saveCancel" type="button">취소</button>
+        </form>
+        <div class="mine-list" id="mineList"></div>
+        <p class="empty" id="mineEmpty">자주 쓰는 설정을 저장해 두면 여기서 바로 불러올 수 있어요.</p>
       </div>
     </section>
   </main>
@@ -424,14 +622,34 @@ button:focus-visible, .chip:focus-visible {
     work: { min: 1, max: 3600, step: 5 },
     rest: { min: 0, max: 3600, step: 5 },
     sets: { min: 1, max: 99, step: 1 },
+    rounds: { min: 1, max: 20, step: 1 },
     prep: { min: 0, max: 60, step: 5 },
   };
-  const DEFAULTS = { work: 30, rest: 10, sets: 8, prep: 5 };
+  const ITEM = { work: { min: 1, max: 3600 }, rest: { min: 0, max: 3600 }, name: 12, max: 20 };
+  const DEFAULTS = {
+    mode: "simple", work: 30, rest: 10, sets: 8, rounds: 3, prep: 5,
+    items: [
+      { name: "스쿼트", work: 40, rest: 15 },
+      { name: "푸시업", work: 30, rest: 15 },
+      { name: "플랭크", work: 60, rest: 30 },
+    ],
+  };
   const PRESETS = [
     { name: "타바타", v: { work: 20, rest: 10, sets: 8 } },
     { name: "HIIT", v: { work: 40, rest: 20, sets: 10 } },
     { name: "서킷", v: { work: 60, rest: 30, sets: 5 } },
     { name: "플랭크", v: { work: 45, rest: 15, sets: 4 } },
+  ];
+  const ROUTINES = [
+    { name: "전신", v: { rounds: 3, items: [
+      { name: "스쿼트", work: 40, rest: 15 }, { name: "푸시업", work: 30, rest: 15 },
+      { name: "런지", work: 40, rest: 15 }, { name: "플랭크", work: 45, rest: 30 } ] } },
+    { name: "코어", v: { rounds: 3, items: [
+      { name: "크런치", work: 30, rest: 10 }, { name: "레그레이즈", work: 30, rest: 10 },
+      { name: "플랭크", work: 45, rest: 15 }, { name: "바이시클", work: 30, rest: 20 } ] } },
+    { name: "하체", v: { rounds: 4, items: [
+      { name: "스쿼트", work: 45, rest: 15 }, { name: "점프 스쿼트", work: 30, rest: 15 },
+      { name: "월싯", work: 45, rest: 30 } ] } },
   ];
   const PHASE_NAME = { prep: "준비", work: "운동", rest: "휴식" };
   const C = 2 * Math.PI * 92;
@@ -441,26 +659,53 @@ button:focus-visible, .chip:focus-visible {
   const el = {
     prog: $("prog"), phase: $("phaseLabel"), digits: $("digits"), sub: $("subLabel"),
     sets: $("setsBar"), meta: $("meta"), settings: $("settings"), presets: $("presets"),
+    rpresets: $("rpresets"), items: $("items"), addItem: $("addItem"),
+    mineList: $("mineList"), mineEmpty: $("mineEmpty"), saveOpen: $("saveOpen"),
+    saveForm: $("saveForm"), saveName: $("saveName"), saveCancel: $("saveCancel"),
     primary: $("primaryBtn"), skip: $("skipBtn"), reset: $("resetBtn"), sound: $("soundBtn"),
     voice: $("voiceBtn"),
   };
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
   el.prog.style.strokeDasharray = C;
+
+  /* ---------- config ---------- */
+  function num(v, min, max, fallback) {
+    const n = Math.round(Number(v));
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
+  }
+  function clamp(f, v) { return num(v, FIELDS[f].min, FIELDS[f].max, DEFAULTS[f]); }
+  function cleanItem(it, i) {
+    it = it || {};
+    const name = String(it.name || "").trim().slice(0, ITEM.name) || "운동 " + (i + 1);
+    return {
+      name,
+      work: num(it.work, ITEM.work.min, ITEM.work.max, 30),
+      rest: num(it.rest, ITEM.rest.min, ITEM.rest.max, 15),
+    };
+  }
+  function cleanCfg(src) {
+    src = src || {};
+    const c = { mode: src.mode === "routine" ? "routine" : "simple" };
+    for (const f in FIELDS) c[f] = clamp(f, src[f] != null ? src[f] : DEFAULTS[f]);
+    const items = Array.isArray(src.items) && src.items.length ? src.items : DEFAULTS.items;
+    c.items = items.slice(0, ITEM.max).map(cleanItem);
+    return c;
+  }
+  function copyCfg(c) { return JSON.parse(JSON.stringify(c)); }
 
   /* ---------- storage ---------- */
   function readStore() {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
   }
   function writeStore() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify({ cfg, soundOn, voiceOn })); } catch (e) {}
-  }
-  function clamp(f, v) {
-    const n = Math.round(Number(v));
-    if (!Number.isFinite(n)) return DEFAULTS[f];
-    return Math.min(FIELDS[f].max, Math.max(FIELDS[f].min, n));
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ cfg, mine, soundOn, voiceOn })); } catch (e) {}
   }
   const saved = readStore();
-  const cfg = {};
-  for (const f in FIELDS) cfg[f] = clamp(f, saved.cfg && saved.cfg[f] != null ? saved.cfg[f] : DEFAULTS[f]);
+  const cfg = cleanCfg(saved.cfg);
+  let mine = Array.isArray(saved.mine)
+    ? saved.mine.filter((m) => m && m.cfg).map((m) => ({ id: String(m.id || Math.random()), name: String(m.name || "내 설정").slice(0, 16), cfg: cleanCfg(m.cfg) }))
+    : [];
   let soundOn = saved.soundOn !== false;
   let voiceOn = saved.voiceOn !== false;
 
@@ -475,7 +720,42 @@ button:focus-visible, .chip:focus-visible {
     if (!m) return s + "초";
     return s ? m + "분 " + s + "초" : m + "분";
   }
-  function totalSec(c) { return c.prep + c.sets * c.work + (c.sets - 1) * c.rest; }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+  function summary(c) {
+    return c.mode === "routine"
+      ? "운동 " + c.items.length + "개 ×" + c.rounds
+      : c.work + "/" + c.rest + " ×" + c.sets;
+  }
+
+  /* ---------- phases ---------- */
+  // step = which work block this belongs to (1-based), used by the progress segments
+  function buildPhases(c) {
+    const list = [];
+    if (c.prep > 0) list.push({ type: "prep", ms: c.prep * 1000, step: 0 });
+    if (c.mode === "routine") {
+      const n = c.items.length;
+      let step = 0;
+      for (let r = 1; r <= c.rounds; r++) {
+        c.items.forEach((it, j) => {
+          step++;
+          list.push({ type: "work", ms: it.work * 1000, name: it.name, round: r, item: j + 1, step });
+          const last = r === c.rounds && j === n - 1;
+          if (!last && it.rest > 0) list.push({ type: "rest", ms: it.rest * 1000, round: r, item: j + 1, step });
+        });
+      }
+    } else {
+      for (let i = 1; i <= c.sets; i++) {
+        list.push({ type: "work", ms: c.work * 1000, step: i });
+        if (i < c.sets && c.rest > 0) list.push({ type: "rest", ms: c.rest * 1000, step: i });
+      }
+    }
+    return list;
+  }
+  function totalSec(c) { return buildPhases(c).reduce((a, p) => a + p.ms, 0) / 1000; }
+  function workCount(c) { return c.mode === "routine" ? c.rounds * c.items.length : c.sets; }
+  function title(p) { return p.type === "work" && p.name ? p.name : PHASE_NAME[p.type]; }
 
   /* ---------- sound / vibration / wake lock ---------- */
   let ctx = null;
@@ -530,9 +810,20 @@ button:focus-visible, .chip:focus-visible {
     } catch (e) {}
   }
   function announce(p) {
-    if (p.type === "prep") say("준비하세요");
-    else if (p.type === "work") say(p.set === cfg.sets && cfg.sets > 1 ? "마지막 세트, 운동 시작" : p.set + "세트 운동 시작");
-    else if (p.type === "rest") say("휴식 " + words(p.ms / 1000) + ". 다음은 " + (p.set + 1) + "세트");
+    if (p.type === "prep") { say("준비하세요"); return; }
+    const routine = cfg.mode === "routine";
+    if (p.type === "work") {
+      if (!routine) {
+        say(p.step === cfg.sets && cfg.sets > 1 ? "마지막 세트, 운동 시작" : p.step + "세트 운동 시작");
+      } else {
+        let line = p.name + " 시작";
+        if (p.item === 1 && cfg.rounds > 1) line = (p.round === cfg.rounds ? "마지막 라운드. " : p.round + "라운드. ") + line;
+        say(line);
+      }
+    } else if (p.type === "rest") {
+      const next = phases[idx + 1];
+      say("휴식 " + words(p.ms / 1000) + ". 다음은 " + (routine ? (next && next.name) || "" : (p.step + 1) + "세트"));
+    }
   }
   // spoken checkpoints inside a phase, keyed by seconds left
   function checkpoint(p, sec) {
@@ -574,16 +865,6 @@ button:focus-visible, .chip:focus-visible {
   let lastSec = null;
   let raf = 0, iv = 0;
 
-  function buildPhases() {
-    const list = [];
-    if (cfg.prep > 0) list.push({ type: "prep", set: 1, ms: cfg.prep * 1000 });
-    for (let i = 1; i <= cfg.sets; i++) {
-      list.push({ type: "work", set: i, ms: cfg.work * 1000 });
-      if (i < cfg.sets && cfg.rest > 0) list.push({ type: "rest", set: i, ms: cfg.rest * 1000 });
-    }
-    return list;
-  }
-
   function onPhaseStart() {
     const p = phases[idx];
     lastSec = Math.ceil(p.ms / 1000);
@@ -593,7 +874,7 @@ button:focus-visible, .chip:focus-visible {
 
   function start() {
     ensureAudio();
-    phases = buildPhases();
+    phases = buildPhases(cfg);
     idx = 0;
     endAt = performance.now() + phases[0].ms;
     status = "running";
@@ -683,8 +964,9 @@ button:focus-visible, .chip:focus-visible {
   /* ---------- rendering ---------- */
   function buildSetBar() {
     el.sets.textContent = "";
-    if (cfg.sets > 40) return;
-    for (let i = 0; i < cfg.sets; i++) el.sets.appendChild(document.createElement("span"));
+    const n = workCount(cfg);
+    if (n > 40) return;
+    for (let i = 0; i < n; i++) el.sets.appendChild(document.createElement("span"));
   }
 
   function setRing(frac) { el.prog.style.strokeDashoffset = C * (1 - frac); }
@@ -694,32 +976,50 @@ button:focus-visible, .chip:focus-visible {
     el.digits.classList.toggle("long", text.length > 4);
   }
 
+  let shownPhase = "";
+  function setPhase(name) {
+    body.dataset.phase = name;
+    if (name === shownPhase) return;
+    shownPhase = name;
+    // match the phone's status bar to the stage color when installed as an app
+    if (themeMeta) {
+      const color = getComputedStyle(body).getPropertyValue("--stage").trim();
+      if (color) themeMeta.setAttribute("content", color);
+    }
+  }
+
   function render(now) {
     body.dataset.status = status;
     const idle = status === "idle";
+    const routine = cfg.mode === "routine";
     el.settings.hidden = !idle;
     el.sets.hidden = idle || status === "done" || !el.sets.childElementCount;
     el.reset.hidden = !(status === "paused" || status === "done");
     el.skip.hidden = !(status === "running" || status === "paused");
 
     if (idle) {
-      body.dataset.phase = "idle";
-      const t = totalSec(cfg);
+      setPhase("idle");
       el.phase.textContent = "전체 시간";
-      setDigits(clock(t));
-      el.sub.textContent = cfg.sets + "세트";
-      el.meta.innerHTML = "운동 <strong>" + words(cfg.work) + "</strong> · 휴식 <strong>" +
-        (cfg.rest ? words(cfg.rest) : "없음") + "</strong> × <strong>" + cfg.sets + "세트</strong>";
+      setDigits(clock(totalSec(cfg)));
+      if (routine) {
+        el.sub.textContent = cfg.rounds + "라운드 · 운동 " + cfg.items.length + "개";
+        el.meta.innerHTML = cfg.items.map((it) => esc(it.name)).join(" → ") +
+          " × <strong>" + cfg.rounds + "라운드</strong>";
+      } else {
+        el.sub.textContent = cfg.sets + "세트";
+        el.meta.innerHTML = "운동 <strong>" + words(cfg.work) + "</strong> · 휴식 <strong>" +
+          (cfg.rest ? words(cfg.rest) : "없음") + "</strong> × <strong>" + cfg.sets + "세트</strong>";
+      }
       setRing(1);
       el.primary.textContent = "시작";
       return;
     }
 
     if (status === "done") {
-      body.dataset.phase = "done";
+      setPhase("done");
       el.phase.textContent = "완료";
       setDigits(clock(totalSec(cfg)));
-      el.sub.textContent = cfg.sets + "세트 끝";
+      el.sub.textContent = routine ? cfg.rounds + "라운드 끝" : cfg.sets + "세트 끝";
       el.meta.textContent = "수고했어요. 같은 설정으로 다시 하려면 아래 버튼을 누르세요.";
       setRing(1);
       el.primary.textContent = "다시 시작";
@@ -729,56 +1029,92 @@ button:focus-visible, .chip:focus-visible {
     const p = phases[idx];
     const ms = status === "running" ? Math.max(0, endAt - (now || performance.now())) : left;
     const sec = Math.ceil(ms / 1000);
-    body.dataset.phase = p.type;
-    el.phase.textContent = status === "paused" ? PHASE_NAME[p.type] + " · 일시정지" : PHASE_NAME[p.type];
+    setPhase(p.type);
+    el.phase.textContent = status === "paused" ? title(p) + " · 일시정지" : title(p);
     setDigits(big(sec));
-    el.sub.textContent = p.type === "prep" ? "곧 시작합니다" : "세트 " + p.set + " / " + cfg.sets;
+    if (p.type === "prep") el.sub.textContent = "곧 시작합니다";
+    else if (routine) el.sub.textContent = p.round + " / " + cfg.rounds + " 라운드 · " + p.item + " / " + cfg.items.length;
+    else el.sub.textContent = "세트 " + p.step + " / " + cfg.sets;
     setRing(p.ms ? ms / p.ms : 0);
 
     let rest = ms;
     for (let i = idx + 1; i < phases.length; i++) rest += phases[i].ms;
     const next = phases[idx + 1];
     el.meta.innerHTML = "남은 시간 <strong>" + clock(Math.ceil(rest / 1000)) + "</strong> · " +
-      (next ? "다음 <strong>" + PHASE_NAME[next.type] + " " + words(next.ms / 1000) + "</strong>" : "<strong>마지막 구간</strong>");
+      (next ? "다음 <strong>" + esc(title(next)) + " " + words(next.ms / 1000) + "</strong>" : "<strong>마지막 구간</strong>");
 
     const segs = el.sets.children;
     for (let i = 0; i < segs.length; i++) {
       const n = i + 1;
-      const done = p.type === "rest" ? n <= p.set : p.type === "work" ? n < p.set : false;
-      segs[i].className = done ? "done" : (p.type === "work" && n === p.set ? "now" : "");
+      const done = p.type === "rest" ? n <= p.step : p.type === "work" ? n < p.step : false;
+      segs[i].className = done ? "done" : (p.type === "work" && n === p.step ? "now" : "");
     }
 
     el.primary.textContent = status === "running" ? "일시정지" : "계속";
   }
 
-  /* ---------- settings UI ---------- */
+  /* ---------- settings: fields ---------- */
   function syncInputs() {
     for (const f in FIELDS) {
       $("f-" + f).value = cfg[f];
       const hint = $("h-" + f);
       if (f === "sets") hint.textContent = "회";
+      else if (f === "rounds") hint.textContent = "라운드";
       else hint.textContent = cfg[f] >= 60 ? words(cfg[f]) : cfg[f] === 0 ? "안 함" : "초";
     }
   }
-  function setField(f, v) {
-    cfg[f] = clamp(f, v);
+  function changed() {
     writeStore();
-    syncInputs();
     render();
   }
+  function setField(f, v) {
+    cfg[f] = clamp(f, v);
+    syncInputs();
+    changed();
+  }
 
-  PRESETS.forEach((p) => {
+  function syncMode() {
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.mode === cfg.mode)));
+    document.querySelectorAll("[data-only]").forEach((n) => { n.hidden = n.dataset.only !== cfg.mode; });
+  }
+  function syncSettings() {
+    syncMode();
+    syncInputs();
+    renderItems();
+  }
+
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+    cfg.mode = t.dataset.mode;
+    syncMode();
+    changed();
+  }));
+
+  function chip(label, small, onClick) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "chip";
-    b.innerHTML = p.name + "<small>" + p.v.work + "/" + p.v.rest + " ×" + p.v.sets + "</small>";
-    b.addEventListener("click", () => {
+    b.textContent = label;
+    const s = document.createElement("small");
+    s.textContent = small;
+    b.appendChild(s);
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  PRESETS.forEach((p) => {
+    el.presets.appendChild(chip(p.name, p.v.work + "/" + p.v.rest + " ×" + p.v.sets, () => {
       Object.assign(cfg, p.v);
-      writeStore();
       syncInputs();
-      render();
-    });
-    el.presets.appendChild(b);
+      changed();
+    }));
+  });
+  ROUTINES.forEach((p) => {
+    el.rpresets.appendChild(chip(p.name, p.v.items.length + "개 ×" + p.v.rounds, () => {
+      cfg.rounds = p.v.rounds;
+      cfg.items = copyCfg(p.v.items);
+      syncSettings();
+      changed();
+    }));
   });
 
   document.querySelectorAll(".stepper").forEach((st) => {
@@ -806,6 +1142,141 @@ button:focus-visible, .chip:focus-visible {
       // keyboard activation arrives as a click with detail 0
       btn.addEventListener("click", (e) => { if (e.detail === 0) step(); });
     });
+  });
+
+  /* ---------- settings: routine list ---------- */
+  function numInput(value, lim, label, onSet) {
+    const inp = document.createElement("input");
+    inp.type = "number";
+    inp.inputMode = "numeric";
+    inp.min = lim.min;
+    inp.max = lim.max;
+    inp.value = value;
+    inp.setAttribute("aria-label", label);
+    inp.addEventListener("focus", () => inp.select());
+    inp.addEventListener("change", () => {
+      const v = num(inp.value, lim.min, lim.max, value);
+      inp.value = v;
+      onSet(v);
+    });
+    return inp;
+  }
+
+  function renderItems() {
+    el.items.textContent = "";
+    cfg.items.forEach((it, i) => {
+      const li = document.createElement("li");
+      li.className = "item";
+
+      const n = document.createElement("span");
+      n.className = "num";
+      n.textContent = i + 1;
+
+      const name = document.createElement("input");
+      name.type = "text";
+      name.id = "item-name-" + i;
+      name.maxLength = ITEM.name;
+      name.value = it.name;
+      name.setAttribute("aria-label", (i + 1) + "번 운동 이름");
+      name.addEventListener("input", () => { it.name = name.value.trim() || "운동 " + (i + 1); changed(); });
+      name.addEventListener("blur", () => { name.value = it.name; });
+
+      const work = numInput(it.work, ITEM.work, (i + 1) + "번 운동 시간(초)", (v) => { it.work = v; changed(); });
+      work.id = "item-work-" + i;
+      const rest = numInput(it.rest, ITEM.rest, (i + 1) + "번 운동 뒤 휴식(초)", (v) => { it.rest = v; changed(); });
+      rest.id = "item-rest-" + i;
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "del";
+      del.textContent = "×";
+      del.disabled = cfg.items.length <= 1;
+      del.setAttribute("aria-label", it.name + " 빼기");
+      del.addEventListener("click", () => {
+        cfg.items.splice(i, 1);
+        renderItems();
+        changed();
+      });
+
+      li.append(n, name, work, rest, del);
+      el.items.appendChild(li);
+    });
+    el.addItem.hidden = cfg.items.length >= ITEM.max;
+  }
+
+  el.addItem.addEventListener("click", () => {
+    const prev = cfg.items[cfg.items.length - 1];
+    cfg.items.push({ name: "운동 " + (cfg.items.length + 1), work: prev ? prev.work : 30, rest: prev ? prev.rest : 15 });
+    renderItems();
+    changed();
+    const inp = $("item-name-" + (cfg.items.length - 1));
+    if (inp) { inp.focus(); inp.select(); }
+  });
+
+  /* ---------- settings: saved ---------- */
+  function renderMine() {
+    el.mineList.textContent = "";
+    el.mineEmpty.hidden = mine.length > 0;
+    mine.forEach((m) => {
+      const wrap = document.createElement("span");
+      wrap.className = "saved";
+      wrap.appendChild(chip(m.name, summary(m.cfg), () => {
+        Object.assign(cfg, cleanCfg(m.cfg));
+        syncSettings();
+        changed();
+      }));
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "x";
+      x.textContent = "×";
+      x.setAttribute("aria-label", m.name + " 삭제");
+      // two taps to delete, since the page cannot show a confirm dialog
+      let armed = 0;
+      x.addEventListener("click", () => {
+        if (!armed) {
+          x.classList.add("armed");
+          x.textContent = "삭제";
+          armed = setTimeout(() => { armed = 0; x.classList.remove("armed"); x.textContent = "×"; }, 3000);
+          return;
+        }
+        clearTimeout(armed);
+        mine = mine.filter((k) => k.id !== m.id);
+        writeStore();
+        renderMine();
+      });
+      wrap.appendChild(x);
+      el.mineList.appendChild(wrap);
+    });
+  }
+
+  function defaultName() {
+    if (cfg.mode === "routine") {
+      const names = cfg.items.slice(0, 2).map((it) => it.name).join("·");
+      return cfg.items.length > 2 ? names + " 외" : names;
+    }
+    return summary(cfg);
+  }
+
+  el.saveOpen.addEventListener("click", () => {
+    el.saveForm.hidden = false;
+    el.saveOpen.hidden = true;
+    el.saveName.value = "";
+    el.saveName.placeholder = defaultName();
+    el.saveName.focus();
+  });
+  function closeSave() {
+    el.saveForm.hidden = true;
+    el.saveOpen.hidden = false;
+  }
+  el.saveCancel.addEventListener("click", closeSave);
+  el.saveForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = el.saveName.value.trim().slice(0, 16) || defaultName();
+    mine.unshift({ id: Date.now().toString(36), name, cfg: copyCfg(cfg) });
+    mine = mine.slice(0, 20);
+    writeStore();
+    renderMine();
+    closeSave();
   });
 
   /* ---------- controls ---------- */
@@ -851,7 +1322,8 @@ button:focus-visible, .chip:focus-visible {
     if (document.visibilityState === "visible" && status === "running") { holdScreen(); tick(); }
   });
 
-  syncInputs();
+  syncSettings();
+  renderMine();
   syncSound();
   syncVoice();
   render();
