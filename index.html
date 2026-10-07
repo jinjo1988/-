@@ -111,6 +111,7 @@ body {
   color: var(--fg-dim);
 }
 .brand b { color: var(--fg); font-weight: 700; }
+.toggles { display: flex; gap: 8px; }
 .toggle {
   font: 500 13px/1 var(--font-ui);
   color: var(--fg-dim);
@@ -346,7 +347,10 @@ button:focus-visible, .chip:focus-visible {
 <div class="app">
   <header class="bar">
     <div class="brand"><b>Interval</b> Timer</div>
-    <button class="toggle" id="soundBtn" type="button" aria-pressed="true">소리 켜짐</button>
+    <div class="toggles">
+      <button class="toggle" id="voiceBtn" type="button" aria-pressed="true">음성 켜짐</button>
+      <button class="toggle" id="soundBtn" type="button" aria-pressed="true">소리 켜짐</button>
+    </div>
   </header>
 
   <main class="stage">
@@ -438,6 +442,7 @@ button:focus-visible, .chip:focus-visible {
     prog: $("prog"), phase: $("phaseLabel"), digits: $("digits"), sub: $("subLabel"),
     sets: $("setsBar"), meta: $("meta"), settings: $("settings"), presets: $("presets"),
     primary: $("primaryBtn"), skip: $("skipBtn"), reset: $("resetBtn"), sound: $("soundBtn"),
+    voice: $("voiceBtn"),
   };
   el.prog.style.strokeDasharray = C;
 
@@ -446,7 +451,7 @@ button:focus-visible, .chip:focus-visible {
     try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
   }
   function writeStore() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify({ cfg, soundOn })); } catch (e) {}
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ cfg, soundOn, voiceOn })); } catch (e) {}
   }
   function clamp(f, v) {
     const n = Math.round(Number(v));
@@ -457,6 +462,7 @@ button:focus-visible, .chip:focus-visible {
   const cfg = {};
   for (const f in FIELDS) cfg[f] = clamp(f, saved.cfg && saved.cfg[f] != null ? saved.cfg[f] : DEFAULTS[f]);
   let soundOn = saved.soundOn !== false;
+  let voiceOn = saved.voiceOn !== false;
 
   /* ---------- formatting ---------- */
   function clock(sec) {
@@ -496,8 +502,49 @@ button:focus-visible, .chip:focus-visible {
     } catch (e) {}
   }
   function buzz(pattern) { try { navigator.vibrate && navigator.vibrate(pattern); } catch (e) {} }
+  /* ---------- voice ---------- */
+  const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+  const COUNT = ["하나", "둘", "셋"];
+  let koVoice = null;
+  function pickVoice() {
+    try {
+      const ko = synth.getVoices().filter((v) => /^ko/i.test(v.lang));
+      koVoice = ko.find((v) => v.localService) || ko[0] || null;
+    } catch (e) { koVoice = null; }
+  }
+  if (synth) {
+    pickVoice();
+    try { synth.addEventListener("voiceschanged", pickVoice); } catch (e) { synth.onvoiceschanged = pickVoice; }
+  }
+  function hush() { try { synth && synth.cancel(); } catch (e) {} }
+  function say(text) {
+    if (!voiceOn || !synth) return;
+    try {
+      // newest line wins so the countdown never lags behind a longer announcement
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ko-KR";
+      if (koVoice) u.voice = koVoice;
+      u.rate = 1.1;
+      synth.speak(u);
+    } catch (e) {}
+  }
+  function announce(p) {
+    if (p.type === "prep") say("준비하세요");
+    else if (p.type === "work") say(p.set === cfg.sets && cfg.sets > 1 ? "마지막 세트, 운동 시작" : p.set + "세트 운동 시작");
+    else if (p.type === "rest") say("휴식 " + words(p.ms / 1000) + ". 다음은 " + (p.set + 1) + "세트");
+  }
+  // spoken checkpoints inside a phase, keyed by seconds left
+  function checkpoint(p, sec) {
+    if (sec >= 1 && sec <= 3 && p.ms >= 4000) return COUNT[sec - 1];
+    if (p.type !== "work") return null;
+    if (p.ms >= 30000 && sec === 10) return "10초 남았어요";
+    if (p.ms >= 20000 && sec === Math.ceil(p.ms / 2000)) return "절반 지났어요";
+    return null;
+  }
+
   const cue = {
-    tick() { tone(740, 0.12); buzz(60); },
+    tick() { if (voiceOn && synth) buzz(60); else { tone(740, 0.12); buzz(60); } },
     work() { tone(988, 0.18); tone(988, 0.4, 0.22); buzz([200, 80, 200]); },
     rest() { tone(523, 0.5); buzz(400); },
     prep() { tone(660, 0.25); },
@@ -541,6 +588,7 @@ button:focus-visible, .chip:focus-visible {
     const p = phases[idx];
     lastSec = Math.ceil(p.ms / 1000);
     cue[p.type]();
+    announce(p);
   }
 
   function start() {
@@ -559,6 +607,7 @@ button:focus-visible, .chip:focus-visible {
     left = Math.max(0, endAt - performance.now());
     status = "paused";
     stopLoop();
+    hush();
     releaseScreen();
     render();
   }
@@ -589,12 +638,14 @@ button:focus-visible, .chip:focus-visible {
     stopLoop();
     releaseScreen();
     cue.done();
+    say("운동 완료. 수고했어요");
     render();
   }
 
   function reset() {
     status = "idle";
     stopLoop();
+    hush();
     releaseScreen();
     render();
   }
@@ -620,7 +671,10 @@ button:focus-visible, .chip:focus-visible {
     }
     const sec = Math.ceil((endAt - now) / 1000);
     if (sec !== lastSec) {
-      if (sec <= 3 && sec >= 1 && phases[idx].ms >= 4000) cue.tick();
+      const p = phases[idx];
+      if (sec <= 3 && sec >= 1 && p.ms >= 4000) cue.tick();
+      const line = checkpoint(p, sec);
+      if (line) say(line);
       lastSec = sec;
     }
     render(now);
@@ -774,6 +828,19 @@ button:focus-visible, .chip:focus-visible {
     syncSound();
   });
 
+  function syncVoice() {
+    el.voice.hidden = !synth;
+    el.voice.setAttribute("aria-pressed", String(voiceOn));
+    el.voice.textContent = voiceOn ? "음성 켜짐" : "음성 꺼짐";
+  }
+  el.voice.addEventListener("click", () => {
+    voiceOn = !voiceOn;
+    if (voiceOn) say("음성 안내를 켰어요");
+    else hush();
+    writeStore();
+    syncVoice();
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.code !== "Space" || e.target.closest("input, button")) return;
     e.preventDefault();
@@ -786,6 +853,7 @@ button:focus-visible, .chip:focus-visible {
 
   syncInputs();
   syncSound();
+  syncVoice();
   render();
 
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
