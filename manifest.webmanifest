@@ -1,0 +1,15 @@
+{
+  "name": "인터벌 운동 타이머",
+  "short_name": "인터벌",
+  "description": "운동 시간, 휴식 시간, 세트 수를 정해 쓰는 인터벌 타이머",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EDF0F3",
+  "theme_color": "#D33C22",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
