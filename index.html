@@ -491,6 +491,29 @@ button:focus-visible, .chip:focus-visible {
   white-space: nowrap;
 }
 .saved .x.armed { background: var(--work); color: var(--on-flood); }
+.edit-form {
+  flex-basis: 100%;
+  display: grid;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+}
+.edit-form input {
+  width: 100%;
+  min-width: 0;
+  font: 500 15px/1.2 var(--font-ui);
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+.edit-form input:focus { outline: 2px solid var(--work); outline-offset: -1px; }
+.edit-form .row { display: flex; flex-wrap: wrap; gap: 6px; }
+.edit-form .mini { min-height: 38px; }
+.edit-form .note { margin: 0; font-size: 12px; color: var(--muted); }
 .empty { margin: 0; font-size: 13px; color: var(--muted); }
 
 @media (max-height: 640px) {
@@ -1214,10 +1237,63 @@ button:focus-visible, .chip:focus-visible {
   });
 
   /* ---------- settings: saved ---------- */
+  let editingId = null;
+
+  function editForm(m) {
+    const form = document.createElement("form");
+    form.className = "edit-form";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "edit-name";
+    input.maxLength = 16;
+    input.value = m.name;
+    input.setAttribute("aria-label", "새 이름");
+
+    const btn = (label, cls, type) => {
+      const b = document.createElement("button");
+      b.type = type || "button";
+      b.className = "mini" + (cls ? " " + cls : "");
+      b.textContent = label;
+      return b;
+    };
+    const save = btn("이름 저장", "primary", "submit");
+    const over = btn("지금 설정으로 덮어쓰기");
+    const cancel = btn("취소");
+    const note = document.createElement("p");
+    note.className = "note";
+    note.textContent = "덮어쓰기는 이 칩에 지금 화면의 설정(" + summary(cfg) + ")을 넣어요.";
+
+    const done = (overwrite) => {
+      m.name = input.value.trim().slice(0, 16) || m.name;
+      if (overwrite) m.cfg = copyCfg(cfg);
+      editingId = null;
+      writeStore();
+      renderMine();
+    };
+    form.addEventListener("submit", (e) => { e.preventDefault(); done(false); });
+    over.addEventListener("click", () => done(true));
+    cancel.addEventListener("click", () => { editingId = null; renderMine(); });
+    input.addEventListener("keydown", (e) => { if (e.key === "Escape") cancel.click(); });
+
+    const row = document.createElement("div");
+    row.className = "row";
+    row.append(save, over, cancel);
+    form.append(input, row, note);
+    return form;
+  }
+
   function renderMine() {
     el.mineList.textContent = "";
     el.mineEmpty.hidden = mine.length > 0;
     mine.forEach((m) => {
+      if (m.id === editingId) {
+        const form = editForm(m);
+        el.mineList.appendChild(form);
+        const inp = form.querySelector("input");
+        inp.focus();
+        inp.select();
+        return;
+      }
       const wrap = document.createElement("span");
       wrap.className = "saved";
       wrap.appendChild(chip(m.name, summary(m.cfg), () => {
@@ -1225,6 +1301,14 @@ button:focus-visible, .chip:focus-visible {
         syncSettings();
         changed();
       }));
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "x";
+      edit.textContent = "✎";
+      edit.setAttribute("aria-label", m.name + " 이름 바꾸기");
+      edit.addEventListener("click", () => { editingId = m.id; renderMine(); });
+      wrap.appendChild(edit);
+
       const x = document.createElement("button");
       x.type = "button";
       x.className = "x";
