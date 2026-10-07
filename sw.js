@@ -1,6 +1,6 @@
 // Offline cache so the timer opens without a connection once installed.
-const CACHE = "interval-timer-v1";
-const CORE = ["./", "index.html", "manifest.webmanifest", "icon.svg"];
+const CACHE = "interval-timer-v2";
+const CORE = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
